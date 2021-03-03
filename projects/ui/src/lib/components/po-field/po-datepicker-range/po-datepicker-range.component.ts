@@ -173,7 +173,11 @@ export class PoDatepickerRangeComponent extends PoDatepickerRangeBaseComponent i
     }
   }
 
-  onBlur() {
+  onBlur(event: any) {
+    const isStartDateTargetEvent = event.target.name === this.startDateInputName;
+
+    this.updateModelByScreen(isStartDateTargetEvent);
+
     this.removeFocusFromDatePickerRangeField();
   }
 
@@ -203,7 +207,7 @@ export class PoDatepickerRangeComponent extends PoDatepickerRangeBaseComponent i
 
     this.setFocus(event);
     this.poMaskObject.keyup(event);
-    this.updateModelByScreen(isStartDateTargetEvent);
+    this.updateModelWhenComplete(isStartDateTargetEvent);
   }
 
   resetDateRangeInputValidation() {
@@ -376,6 +380,23 @@ export class PoDatepickerRangeComponent extends PoDatepickerRangeBaseComponent i
 
     if (inputName === this.startDateInputName && isNewDateCompleted && isValidKey) {
       this.setFocusAndPosition(0, this.endDateInput, 0);
+    }
+  }
+
+  private updateModelWhenComplete(isStartDateTargetEvent: boolean) {
+    const endDateFormatted = this.formatScreenToModel(this.endDateInputValue);
+    const startDateFormatted = this.formatScreenToModel(this.startDateInputValue);
+
+    const dateFormatValidation = this.getDateRangeFormatValidation(
+      startDateFormatted,
+      endDateFormatted,
+      isStartDateTargetEvent
+    );
+
+    if (dateFormatValidation.isValid) {
+      this.dateRange = { start: startDateFormatted, end: endDateFormatted };
+      this.updateModel(this.dateRange);
+      this.onChange.emit({ ...this.dateRange });
     }
   }
 

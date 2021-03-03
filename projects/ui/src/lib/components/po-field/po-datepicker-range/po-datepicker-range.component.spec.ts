@@ -260,8 +260,9 @@ describe('PoDatepickerRangeComponent:', () => {
 
     it('onBlur: should call `removeFocusFromDatePickerRangeField`', () => {
       spyOn(component, <any>'removeFocusFromDatePickerRangeField');
+      const eventMock = { target: { name: '' } };
 
-      component.onBlur();
+      component.onBlur(eventMock);
       expect(component['removeFocusFromDatePickerRangeField']).toHaveBeenCalled();
     });
 
@@ -320,49 +321,49 @@ describe('PoDatepickerRangeComponent:', () => {
       expect(component['poMaskObject'].keydown).toHaveBeenCalled();
     });
 
-    it('onKeyup: shouldn`t call `setFocus`, `updateModelByScreen` and `poMaskObject.keyup` if `readonly` is true', () => {
+    it('onKeyup: shouldn`t call `setFocus`, `updateModelWhenComplete` and `poMaskObject.keyup` if `readonly` is true', () => {
       const eventMock = {};
       component.readonly = true;
 
       spyOn(component['poMaskObject'], 'keyup');
       spyOn(component, <any>'setFocus');
-      spyOn(component, <any>'updateModelByScreen');
+      spyOn(component, <any>'updateModelWhenComplete');
 
       component.onKeyup(eventMock);
 
       expect(component['poMaskObject'].keyup).not.toHaveBeenCalled();
       expect(component['setFocus']).not.toHaveBeenCalled();
-      expect(component['updateModelByScreen']).not.toHaveBeenCalled();
+      expect(component['updateModelWhenComplete']).not.toHaveBeenCalled();
     });
 
-    it('onKeyup: should call `setFocus`, `updateModelByScreen` and `poMaskObject.keyup` if `readonly` is false', () => {
+    it('onKeyup: should call `setFocus`, `updateModelWhenComplete` and `poMaskObject.keyup` if `readonly` is false', () => {
       const eventMock = { key: '1', target: { name: component.startDateInputName } };
       const isStartDateTargetEvent = true;
       component.readonly = false;
 
       spyOn(component['poMaskObject'], 'keyup');
       spyOn(component, <any>'setFocus');
-      spyOn(component, <any>'updateModelByScreen');
+      spyOn(component, <any>'updateModelWhenComplete');
 
       component.onKeyup(eventMock);
 
       expect(component['poMaskObject'].keyup).toHaveBeenCalledWith(eventMock);
       expect(component['setFocus']).toHaveBeenCalledWith(eventMock);
-      expect(component['updateModelByScreen']).toHaveBeenCalledWith(isStartDateTargetEvent);
+      expect(component['updateModelWhenComplete']).toHaveBeenCalledWith(isStartDateTargetEvent);
     });
 
-    it('onKeyup: should call `updateModelByScreen` with `false` if `isStartDateTargetEvent` is false', () => {
+    it('onKeyup: should call `updateModelWhenComplete` with `false` if `isStartDateTargetEvent` is false', () => {
       const eventMock = { key: '1', target: { name: component.endDateInputName } };
       const isStartDateTargetEvent = false;
       component.readonly = false;
 
       spyOn(component['poMaskObject'], 'keyup');
       spyOn(component, <any>'setFocus');
-      spyOn(component, <any>'updateModelByScreen');
+      spyOn(component, <any>'updateModelWhenComplete');
 
       component.onKeyup(eventMock);
 
-      expect(component['updateModelByScreen']).toHaveBeenCalledWith(isStartDateTargetEvent);
+      expect(component['updateModelWhenComplete']).toHaveBeenCalledWith(isStartDateTargetEvent);
     });
 
     it('updateScreenByModel: should update date range input with value param if its valid', () => {
@@ -1205,9 +1206,11 @@ describe('PoDatepickerRangeComponent:', () => {
 
   describe('Templates:', () => {
     let keyupBoardEvent: KeyboardEvent;
+    let blurFocusEvent: FocusEvent;
 
     beforeEach(() => {
       keyupBoardEvent = new KeyboardEvent('keyup');
+      blurFocusEvent = new FocusEvent('blur');
     });
 
     it(`should show optional if the field isn't 'required', has 'label' and 'p-optional' is true.`, () => {
@@ -1315,7 +1318,7 @@ describe('PoDatepickerRangeComponent:', () => {
       fixture.detectChanges();
 
       component.endDateInput.nativeElement.value = '2';
-      component.endDateInput.nativeElement.dispatchEvent(keyupBoardEvent);
+      component.endDateInput.nativeElement.dispatchEvent(blurFocusEvent);
 
       expect(component['updateModel']).toHaveBeenCalledWith({ start: '', end: '' });
       expect(component.endDateInput.nativeElement.value).toBe('2');
@@ -1330,7 +1333,7 @@ describe('PoDatepickerRangeComponent:', () => {
       fixture.detectChanges();
 
       component.endDateInput.nativeElement.value = '24/12/201';
-      component.endDateInput.nativeElement.dispatchEvent(keyupBoardEvent);
+      component.endDateInput.nativeElement.dispatchEvent(blurFocusEvent);
 
       expect(component['updateModel']).toHaveBeenCalledWith({ start: '2018-11-05', end: '' });
       expect(component['dateRange']).toEqual({ start: '2018-11-05', end: '' });
@@ -1347,7 +1350,7 @@ describe('PoDatepickerRangeComponent:', () => {
       fixture.detectChanges();
 
       component.startDateInput.nativeElement.value = '24/12/201';
-      component.startDateInput.nativeElement.dispatchEvent(keyupBoardEvent);
+      component.startDateInput.nativeElement.dispatchEvent(blurFocusEvent);
 
       expect(component['updateModel']).toHaveBeenCalledWith({ start: '', end: '2018-12-24' });
       expect(component['dateRange']).toEqual({ start: '', end: '2018-12-24' });
@@ -1363,7 +1366,7 @@ describe('PoDatepickerRangeComponent:', () => {
 
       component.startDateInput.nativeElement.value = '24/1';
       component.endDateInput.nativeElement.value = '24/12/201';
-      component.startDateInput.nativeElement.dispatchEvent(keyupBoardEvent);
+      component.startDateInput.nativeElement.dispatchEvent(blurFocusEvent);
 
       expect(component['updateModel']).toHaveBeenCalledWith({ start: '', end: '' });
       expect(component.startDateInput.nativeElement.value).toBe('24/1');
@@ -1379,7 +1382,7 @@ describe('PoDatepickerRangeComponent:', () => {
       fixture.detectChanges();
 
       component.endDateInput.nativeElement.value = '24/88/2018';
-      component.endDateInput.nativeElement.dispatchEvent(keyupBoardEvent);
+      component.endDateInput.nativeElement.dispatchEvent(blurFocusEvent);
 
       fixture.detectChanges();
 
@@ -1397,7 +1400,7 @@ describe('PoDatepickerRangeComponent:', () => {
       fixture.detectChanges();
 
       component.startDateInput.nativeElement.value = '24/88/2018';
-      component.startDateInput.nativeElement.dispatchEvent(keyupBoardEvent);
+      component.startDateInput.nativeElement.dispatchEvent(blurFocusEvent);
 
       expect(component['updateModel']).toHaveBeenCalledWith({ start: '', end: '2018-12-24' });
       expect(component['dateRange']).toEqual({ start: '', end: '2018-12-24' });
@@ -1413,7 +1416,7 @@ describe('PoDatepickerRangeComponent:', () => {
       fixture.detectChanges();
 
       component.startDateInput.nativeElement.value = '24/12/2019';
-      component.startDateInput.nativeElement.dispatchEvent(keyupBoardEvent);
+      component.startDateInput.nativeElement.dispatchEvent(blurFocusEvent);
 
       expect(component['updateModel']).toHaveBeenCalledWith({ start: '', end: '2018-12-24' });
       expect(component['dateRange']).toEqual({ start: '', end: '2018-12-24' });
@@ -1429,7 +1432,7 @@ describe('PoDatepickerRangeComponent:', () => {
       fixture.detectChanges();
 
       component.endDateInput.nativeElement.value = '24/12/2016';
-      component.endDateInput.nativeElement.dispatchEvent(keyupBoardEvent);
+      component.endDateInput.nativeElement.dispatchEvent(blurFocusEvent);
 
       expect(component['updateModel']).toHaveBeenCalledWith({ start: '2018-12-24', end: '' });
       expect(component['dateRange']).toEqual({ start: '2018-12-24', end: '' });
